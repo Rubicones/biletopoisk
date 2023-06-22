@@ -1,0 +1,67 @@
+.movies-container
+    float: right
+    margin-top: 20px
+    height: calc(95vh - 80px)
+    grid-column-start: 2
+    overflow: scroll
+
+.movie-container
+    width: calc(100% - 40px)
+    min-width: 340px
+    background-color: white
+    height: 168px
+    display: grid
+    grid-template-columns: 150px auto 120px
+    border-radius: 10px
+    margin-bottom: 10px
+    margin-right: 20px
+    margin-left: 20px
+
+
+    &>*
+        max-height: 168px
+
+
+    .poster-container
+        padding: 15px 30px 0 30px
+        .poster
+            height: 135px
+            aspect-ratio: 30/45
+            border-radius: 10px
+
+    .title-genre-container  
+        display: flex
+        flex-direction: column
+        padding-top: 15px
+        height: 100%
+        max-height: 168px
+
+
+        .title
+            font-weight: 500
+        
+        .genre
+            font-weight: 300
+            font-size: 14px
+            font-style: italic
+
+    .utility-buttons-container
+        display: flex
+        position: relative
+        height: 20px
+        grid-column-start: 3
+        margin-right: 15px 
+        margin-top: 15px
+        
+
+        &>*
+            width: 30%
+            height: 100%
+
+        .counter
+            text-align: center
+
+.basket-movies-container
+    height: calc(100vh - 80px)
+    padding-top: 20px
+    overflow: scroll 
