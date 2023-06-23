@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
+import { BasketContext } from "../basketContext";
+import { movie } from "./Movies";
 
-interface headerProps {
-    basket: Map<string, number>;
-}
 export function replacer(key: string, value: any) {
     if (value instanceof Map) {
         return {
@@ -14,21 +13,20 @@ export function replacer(key: string, value: any) {
         return value;
     }
 }
-export default function Header({ basket }: headerProps) {
+export default function Header() {
     const [totalCounter, setTotalCounter] = useState(0);
-
+    const {basket, setBasket} = useContext(BasketContext);
 
     useEffect(() => {
         if (basket) {
-            let counter = 0
+            let counter = 0;
 
             basket.forEach((value) => {
-                counter += value
-            })
+                counter += value;
+            });
             setTotalCounter(counter);
         }
-        
-    }, [basket])
+    }, [basket]);
 
     return (
         <header>
@@ -46,7 +44,7 @@ export default function Header({ basket }: headerProps) {
                 </div>
                 <Link
                     href={{
-                        pathname: "/basket/Basket",
+                        pathname: "/main/basket/Basket",
                         query: { basket: JSON.stringify(basket, replacer) },
                     }}
                 >

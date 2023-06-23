@@ -2,16 +2,22 @@
 
 import Image from "next/image";
 import dropdown from "../../../resources/icons/dropdown.svg";
-import { useState, useEffect } from "react";
+import React, {
+    useState,
+    useEffect,
+    useContext,
+    useCallback,
+    createContext,
+} from "react";
 
 interface filterProps {
     name: string;
     placeholder: string;
     isDropdown: boolean;
     dropdownItems?: { id: number; name: string }[];
-    onFilterStringInput: (str:string) => void
-    onGenreFilterSet: (str:string) => void
-    onCinemaFilterSet: (str:string) => void
+    onFilterStringInput: (str: string) => void;
+    onGenreFilterSet: (str: string) => void;
+    onCinemaFilterSet: (str: string) => void;
 }
 
 const Filter = ({
@@ -21,22 +27,22 @@ const Filter = ({
     dropdownItems,
     onFilterStringInput,
     onGenreFilterSet,
-    onCinemaFilterSet
+    onCinemaFilterSet,
 }: filterProps) => {
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const [inputValue, setInputValue] = useState("");
+    const {activeFilter, switchActiveFilter} = useContext(FiltersContext)
 
     const handleDropdownItemClick = (item: string) => {
-        if (name === "Жанр")
-            onGenreFilterSet(item)
-        if (name === "Кинотеатр")
-            onCinemaFilterSet(item)
+        if (name === "Жанр") onGenreFilterSet(item);
+        if (name === "Кинотеатр") onCinemaFilterSet(item);
         setInputValue(item);
         setIsDropdownVisible(false);
+        switchActiveFilter("")
     };
 
     const handleDropdownClick = () => {
-        setIsDropdownVisible(!isDropdownVisible);
+        switchActiveFilter(name)
     };
 
     return (
@@ -57,7 +63,9 @@ const Filter = ({
                             type="text"
                             className="filter"
                             placeholder={placeholder}
-                            onInput={(e) => {onFilterStringInput(e.currentTarget.value)}}
+                            onInput={(e) => {
+                                onFilterStringInput(e.currentTarget.value);
+                            }}
                         />
                     )}
 
@@ -76,7 +84,7 @@ const Filter = ({
                         </div>
                     )}
                 </div>
-                {isDropdownVisible && (
+                {activeFilter === name && (
                     <ul className="dropdown-list">
                         {dropdownItems?.map((item) => (
                             <li
@@ -96,13 +104,21 @@ const Filter = ({
 };
 
 interface filtersProps {
-    onFilterStringInput: (str:string) => void
-    onGenreFilterSet: (str:string) => void
-    onCinemaFilterSet: (str:string) => void
+    onFilterStringInput: (str: string) => void;
+    onGenreFilterSet: (str: string) => void;
+    onCinemaFilterSet: (str: string) => void;
 }
 
-const Filters = ({onFilterStringInput, onGenreFilterSet, onCinemaFilterSet}: filtersProps) => {
+const FiltersContext = createContext<{
+    activeFilter: string,
+    switchActiveFilter: (filter: string) => void;
+}>({activeFilter: '', switchActiveFilter: () => {}})
 
+const Filters = ({
+    onFilterStringInput,
+    onGenreFilterSet,
+    onCinemaFilterSet,
+}: filtersProps) => {
     const [genres, setGenres] = useState([
         { id: 0, name: "Не выбран" },
         { id: 1, name: "Боевик" },
@@ -111,7 +127,15 @@ const Filters = ({onFilterStringInput, onGenreFilterSet, onCinemaFilterSet}: fil
         { id: 4, name: "Ужасы" },
     ]);
     const [cinemas, setCinemas] = useState([{ id: 0, name: "Не выбран" }]);
-
+    const [activeFilter, setActiveFilter] = useState("");
+    const switchActiveFilter = useCallback(
+        (filter: string) => {
+            setActiveFilter((activeFilter: string) => {
+                return activeFilter === filter ? undefined : filter;
+            });
+        },
+        [activeFilter]
+    );
     useEffect(() => {
         let cinemasReq = fetch("http://localhost:3001/api/cinemas");
         cinemasReq
@@ -124,32 +148,52 @@ const Filters = ({onFilterStringInput, onGenreFilterSet, onCinemaFilterSet}: fil
         <div className="filters-menu-container">
             <span>Фильтр поиска</span>
             <div className="filters-container">
-                <Filter
-                    name="Название"
-                    placeholder="Введите название"
-                    isDropdown={false}
-                    onFilterStringInput={(str:string) => {onFilterStringInput(str)}}
-                    onGenreFilterSet={(str:string) => {onGenreFilterSet(str)}}
-                    onCinemaFilterSet={(str:string) => {onCinemaFilterSet(str)}}
-                />
-                <Filter
-                    name="Жанр"
-                    placeholder="Выберите жанр"
-                    isDropdown={true}
-                    dropdownItems={genres}
-                    onFilterStringInput={(str:string) => {onFilterStringInput(str)}}
-                    onGenreFilterSet={(str:string) => {onGenreFilterSet(str)}}
-                    onCinemaFilterSet={(str:string) => {onCinemaFilterSet(str)}}
-                />
-                <Filter
-                    name="Кинотеатр"
-                    placeholder="Выберите кинотеатр"
-                    isDropdown={true}
-                    dropdownItems={cinemas}
-                    onFilterStringInput={(str:string) => {onFilterStringInput(str)}}
-                    onGenreFilterSet={(str:string) => {onGenreFilterSet(str)}}
-                    onCinemaFilterSet={(str:string) => {onCinemaFilterSet(str)}}
-                />
+                <FiltersContext.Provider value={{activeFilter, switchActiveFilter}}>
+                    <Filter
+                        name="Название"
+                        placeholder="Введите название"
+                        isDropdown={false}
+                        onFilterStringInput={(str: string) => {
+                            onFilterStringInput(str);
+                        }}
+                        onGenreFilterSet={(str: string) => {
+                            onGenreFilterSet(str);
+                        }}
+                        onCinemaFilterSet={(str: string) => {
+                            onCinemaFilterSet(str);
+                        }}
+                    />
+                    <Filter
+                        name="Жанр"
+                        placeholder="Выберите жанр"
+                        isDropdown={true}
+                        dropdownItems={genres}
+                        onFilterStringInput={(str: string) => {
+                            onFilterStringInput(str);
+                        }}
+                        onGenreFilterSet={(str: string) => {
+                            onGenreFilterSet(str);
+                        }}
+                        onCinemaFilterSet={(str: string) => {
+                            onCinemaFilterSet(str);
+                        }}
+                    />
+                    <Filter
+                        name="Кинотеатр"
+                        placeholder="Выберите кинотеатр"
+                        isDropdown={true}
+                        dropdownItems={cinemas}
+                        onFilterStringInput={(str: string) => {
+                            onFilterStringInput(str);
+                        }}
+                        onGenreFilterSet={(str: string) => {
+                            onGenreFilterSet(str);
+                        }}
+                        onCinemaFilterSet={(str: string) => {
+                            onCinemaFilterSet(str);
+                        }}
+                    />
+                </FiltersContext.Provider>
             </div>
         </div>
     );

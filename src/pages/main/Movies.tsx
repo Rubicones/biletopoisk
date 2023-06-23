@@ -5,28 +5,63 @@ import btnMinus from "../../../resources/icons/btn-plus.svg";
 import remove from "../../../resources/icons/close.svg";
 import Image from "next/image";
 import { useState, useEffect, useContext } from "react";
-import { BasketContext } from '../index'
+import { BasketContext } from "../basketContext";
 
 interface movieProps {
-    title: string;
-    genre: string;
-    src: string;
-    id: string;
-    ticketsCount: number;
-    onCounterChange: (op: number, id: string) => void;
-    isInBasket: boolean
-    onRemoveTickets?: (id: string) => void
+    isInBasket: boolean;
+    onRemoveTickets?: (id: string) => void;
+    movieDetails: movie;
 }
-export const Movie = ({ title, genre, src, onCounterChange, id, ticketsCount, isInBasket, onRemoveTickets }: movieProps) => {
-    const changeTicketsCounter = (operation: number) => {
-        onCounterChange(operation, id);
+export const Movie = ({
+    isInBasket,
+    onRemoveTickets,
+    movieDetails,
+}: movieProps) => {
+    const { basket, setBasket } = useContext(BasketContext);
+    const { title, genre, posterUrl, id } = movieDetails;
+    const [counter, setCounter] = useState(0);
+
+    const onTicketAdd = (operation: number) => {
+        let basketCopy = new Map(basket);
+        let entry = Array.from(basket.keys()).find(
+            (obj) => obj.id === movieDetails.id
+        ); 
+
+        if (entry){
+            basketCopy.forEach((_, key) => {
+                if (key.id === movieDetails.id) {
+                    basketCopy.set(key, basketCopy.get(key) as number + operation)
+                }
+            })
+            if (basketCopy.get(entry) == 0) {
+                console.log(basketCopy)
+                console.log(1)
+                basketCopy.delete(entry)
+                console.log(basketCopy)
+            }
+
+        } else {
+            basketCopy.set(movieDetails, 1)
+        }
+
+        setBasket(basketCopy);
     };
+
+    useEffect(() => {
+        console.log(basket)
+        let entry = Array.from(basket.keys()).find(
+            (obj) => obj.id === movieDetails.id
+        );
+
+        if (entry) setCounter(basket.get(entry) as number);
+        else setCounter(0);
+    }, [basket]);
 
     return (
         <>
             <div className="movie-container">
                 <div className="poster-container">
-                    <img src={src} alt="poster" className="poster" />
+                    <img src={posterUrl} alt="poster" className="poster" />
                 </div>
                 <div className="title-genre-container">
                     <span className="title">{title}</span>
@@ -39,32 +74,38 @@ export const Movie = ({ title, genre, src, onCounterChange, id, ticketsCount, is
                         width={20}
                         height={20}
                         onClick={() => {
-                            if (ticketsCount > 0) changeTicketsCounter(-1);
+                            let entry = Array.from(basket.keys()).find(
+                                (obj) => obj.id === movieDetails.id
+                            ); 
+                            if (entry && basket.get(entry) as number > 0) onTicketAdd(-1);
                         }}
                     />
-                    <div className="counter">{ticketsCount}</div>
+                    <div className="counter">{counter}</div>
                     <Image
                         src={btnPlus}
                         alt="Add Ticket Button"
                         width={20}
                         height={20}
                         onClick={() => {
-                            if (ticketsCount < 30) changeTicketsCounter(1);
+                            if (
+                                !basket.has(movieDetails) ||
+                                (basket.has(movieDetails) &&
+                                    basket.get(movieDetails) as number < 30)
+                            )
+                                onTicketAdd(1);
                         }}
                     />
                     {isInBasket && (
                         <Image
-                        src={remove}
-                        alt="Remove tickets button"
-                        width={32}
-                        height={32}
-                        onClick={() => {
-                            if (onRemoveTickets)
-                                onRemoveTickets(id);
-                        }}
-                    />
+                            src={remove}
+                            alt="Remove tickets button"
+                            width={32}
+                            height={32}
+                            onClick={() => {
+                                if (onRemoveTickets) onRemoveTickets(id);
+                            }}
+                        />
                     )}
-                    
                 </div>
             </div>
         </>
@@ -72,12 +113,9 @@ export const Movie = ({ title, genre, src, onCounterChange, id, ticketsCount, is
 };
 
 interface moviesProps {
-    onCounterChange: (moviesMap: Map<string, number>) => void;
     filterString: string;
     genreFilter: string;
     cinemaFilter: string;
-    basket: Map<string, number>;
-
 }
 
 export interface movie {
@@ -93,30 +131,18 @@ export interface movie {
 }
 
 interface cinema {
-    id: string
-    name: string
-    movieIds: string[]
+    id: string;
+    name: string;
+    movieIds: string[];
 }
 
-const Movies = ({
-    filterString,
-    genreFilter,
-    cinemaFilter,
-}: moviesProps) => {
+const Movies = ({ filterString, genreFilter, cinemaFilter }: moviesProps) => {
+    const { basket, setBasket } = useContext(BasketContext);
     const [movies, setMovies] = useState<movie[]>([]);
     const [allMovies, setAllMovies] = useState<movie[]>([]);
-    const [basketTickets, setBasketTickets] = useState<Map<string, number>>(new Map());
     const [selectedCinemaMovies, setSelectedCinemaMovies] = useState<string[]>(
         []
     );
-
-    const {basket, setBasket} = useContext(BasketContext)
-    
-
-    useEffect(() => {
-        if (basketTickets.size === 0)
-            setBasketTickets(basket)
-    }, [basket])
 
     useEffect(() => {
         let moviesReq = fetch("http://localhost:3001/api/movies");
@@ -154,7 +180,7 @@ const Movies = ({
                 .then((res) => res.json())
                 .then((res) => {
                     res.forEach((cinema: cinema) => {
-                        console.log(cinema)
+                        console.log(cinema);
                         if (cinema.name === cinemaFilter)
                             setSelectedCinemaMovies(cinema.movieIds);
                     });
@@ -189,34 +215,14 @@ const Movies = ({
         //eslint-disable-next-line
     }, [filterString, genreFilter, cinemaFilter, selectedCinemaMovies]);
 
-    const onTicketAdd = (operation: number, id: string) => {
-        let basketTicketsCopy = new Map(basketTickets)
-        if (basketTicketsCopy.has(id)){
-            basketTicketsCopy.set(id, (basketTicketsCopy.get(id) as number) + operation)
-            if (basketTicketsCopy.get(id) == 0)
-                basketTicketsCopy.delete(id)
-        } else {
-            basketTicketsCopy.set(id, 1)
-        }
-        setBasketTickets(basketTicketsCopy)
-        setBasket(basketTicketsCopy);
-    };
-
     return (
         <div className="movies-container">
             {movies.map((movie: movie) => {
                 return (
                     <Movie
+                        movieDetails={movie}
                         key={movie.id}
-                        title={movie.title}
-                        genre={movie.genre}
-                        src={movie.posterUrl}
-                        id={movie.id}
                         isInBasket={false}
-                        ticketsCount={basketTickets.has(movie.id) ? basketTickets.get(movie.id) as number : 0}
-                        onCounterChange={(op: number, id: string) => {
-                            onTicketAdd(op, id);
-                        }}
                     />
                 );
             })}
