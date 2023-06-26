@@ -1,21 +1,10 @@
 import Link from "next/link";
 import { useEffect, useState, useContext } from "react";
 import { BasketContext } from "../basketContext";
-import { movie } from "./Movies";
 
-export function replacer(key: string, value: any) {
-    if (value instanceof Map) {
-        return {
-            dataType: "Map",
-            value: Array.from(value.entries()),
-        };
-    } else {
-        return value;
-    }
-}
 export default function Header() {
     const [totalCounter, setTotalCounter] = useState(0);
-    const {basket, setBasket} = useContext(BasketContext);
+    const {basket} = useContext(BasketContext);
 
     useEffect(() => {
         if (basket) {
@@ -33,7 +22,6 @@ export default function Header() {
             <Link
                 href={{
                     pathname: "/main/Main",
-                    query: { basket: JSON.stringify(basket, replacer) },
                 }}
             >
                 <h1>Билетопоиск</h1>
@@ -45,7 +33,6 @@ export default function Header() {
                 <Link
                     href={{
                         pathname: "/main/basket/Basket",
-                        query: { basket: JSON.stringify(basket, replacer) },
                     }}
                 >
                     <button className="basket" />

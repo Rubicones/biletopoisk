@@ -4,58 +4,60 @@ import btnPlus from "../../../resources/icons/btn-minus.svg";
 import btnMinus from "../../../resources/icons/btn-plus.svg";
 import remove from "../../../resources/icons/close.svg";
 import Image from "next/image";
-import { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { BasketContext } from "../basketContext";
+import Link from "next/link";
 
 interface movieProps {
     isInBasket: boolean;
-    onRemoveTickets?: (id: string) => void;
     movieDetails: movie;
+    onCrossClick?: (movie: movie) => void;
 }
 export const Movie = ({
     isInBasket,
-    onRemoveTickets,
     movieDetails,
+    onCrossClick,
 }: movieProps) => {
     const { basket, setBasket } = useContext(BasketContext);
-    const { title, genre, posterUrl, id } = movieDetails;
+    const { title, genre, posterUrl } = movieDetails;
     const [counter, setCounter] = useState(0);
 
     const onTicketAdd = (operation: number) => {
         let basketCopy = new Map(basket);
         let entry = Array.from(basket.keys()).find(
             (obj) => obj.id === movieDetails.id
-        ); 
+        );
 
-        if (entry){
+        if (entry) {
             basketCopy.forEach((_, key) => {
                 if (key.id === movieDetails.id) {
-                    basketCopy.set(key, basketCopy.get(key) as number + operation)
+                    basketCopy.set(
+                        key,
+                        (basketCopy.get(key) as number) + operation
+                    );
                 }
-            })
+            });
             if (basketCopy.get(entry) == 0) {
-                console.log(basketCopy)
-                console.log(1)
-                basketCopy.delete(entry)
-                console.log(basketCopy)
+                console.log(basketCopy);
+                console.log(1);
+                basketCopy.delete(entry);
+                console.log(basketCopy);
             }
-
         } else {
-            basketCopy.set(movieDetails, 1)
+            basketCopy.set(movieDetails, 1);
         }
-
+        setCounter(counter + operation);
         setBasket(basketCopy);
     };
 
     useEffect(() => {
-        console.log(basket)
         let entry = Array.from(basket.keys()).find(
             (obj) => obj.id === movieDetails.id
         );
 
         if (entry) setCounter(basket.get(entry) as number);
         else setCounter(0);
-    }, [basket]);
+    }, []);
 
     return (
         <>
@@ -64,7 +66,14 @@ export const Movie = ({
                     <img src={posterUrl} alt="poster" className="poster" />
                 </div>
                 <div className="title-genre-container">
-                    <span className="title">{title}</span>
+                    <Link
+                        key={movieDetails.id + "_link"}
+                        href={{
+                            pathname: "/main/detailedMovie/DetailedMovie",
+                            query: { movie: JSON.stringify(movieDetails) },
+                        }}>
+                        <span className="title">{title}</span>
+                    </Link>
                     <span className="genre">{genre}</span>
                 </div>
                 <div className="utility-buttons-container">
@@ -76,8 +85,9 @@ export const Movie = ({
                         onClick={() => {
                             let entry = Array.from(basket.keys()).find(
                                 (obj) => obj.id === movieDetails.id
-                            ); 
-                            if (entry && basket.get(entry) as number > 0) onTicketAdd(-1);
+                            );
+                            if (entry && (basket.get(entry) as number) > 0)
+                                onTicketAdd(-1);
                         }}
                     />
                     <div className="counter">{counter}</div>
@@ -90,7 +100,7 @@ export const Movie = ({
                             if (
                                 !basket.has(movieDetails) ||
                                 (basket.has(movieDetails) &&
-                                    basket.get(movieDetails) as number < 30)
+                                    (basket.get(movieDetails) as number) < 30)
                             )
                                 onTicketAdd(1);
                         }}
@@ -102,7 +112,7 @@ export const Movie = ({
                             width={32}
                             height={32}
                             onClick={() => {
-                                if (onRemoveTickets) onRemoveTickets(id);
+                                if (onCrossClick) onCrossClick(movieDetails);
                             }}
                         />
                     )}
@@ -180,7 +190,6 @@ const Movies = ({ filterString, genreFilter, cinemaFilter }: moviesProps) => {
                 .then((res) => res.json())
                 .then((res) => {
                     res.forEach((cinema: cinema) => {
-                        console.log(cinema);
                         if (cinema.name === cinemaFilter)
                             setSelectedCinemaMovies(cinema.movieIds);
                     });

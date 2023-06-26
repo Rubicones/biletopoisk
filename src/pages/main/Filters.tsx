@@ -10,6 +10,7 @@ import React, {
     createContext,
 } from "react";
 
+
 interface filterProps {
     name: string;
     placeholder: string;
@@ -29,7 +30,6 @@ const Filter = ({
     onGenreFilterSet,
     onCinemaFilterSet,
 }: filterProps) => {
-    const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const [inputValue, setInputValue] = useState("");
     const {activeFilter, switchActiveFilter} = useContext(FiltersContext)
 
@@ -37,7 +37,6 @@ const Filter = ({
         if (name === "Жанр") onGenreFilterSet(item);
         if (name === "Кинотеатр") onCinemaFilterSet(item);
         setInputValue(item);
-        setIsDropdownVisible(false);
         switchActiveFilter("")
     };
 
@@ -119,23 +118,24 @@ const Filters = ({
     onGenreFilterSet,
     onCinemaFilterSet,
 }: filtersProps) => {
-    const [genres, setGenres] = useState([
+    let genres = [
         { id: 0, name: "Не выбран" },
         { id: 1, name: "Боевик" },
         { id: 2, name: "Комедия" },
         { id: 3, name: "Фэнтези" },
         { id: 4, name: "Ужасы" },
-    ]);
+    ]
     const [cinemas, setCinemas] = useState([{ id: 0, name: "Не выбран" }]);
     const [activeFilter, setActiveFilter] = useState("");
     const switchActiveFilter = useCallback(
-        (filter: string) => {
-            setActiveFilter((activeFilter: string) => {
-                return activeFilter === filter ? undefined : filter;
-            });
-        },
-        [activeFilter]
-    );
+    (filter: string) => {
+        setActiveFilter(activeFilter => {
+            return activeFilter === filter ? '' : filter;
+        });
+    },
+    //eslint-disable-next-line
+    [activeFilter]
+);
     useEffect(() => {
         let cinemasReq = fetch("http://localhost:3001/api/cinemas");
         cinemasReq

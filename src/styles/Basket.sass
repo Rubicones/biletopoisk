@@ -1,49 +1,83 @@
-header
-    display: flex
-    justify-content: space-between
-    align-items: center
-    position: relative
-    width: 100%
-    height: 80px
-    background-color: #333333
-    color: white
+.basket-movies-container
+    padding-top: 20px
+    overflow: scroll 
+    background-color: #F5F5F5
 
-    &:first-child
-        padding-left: 2%
+    .modal-remove-ticket
+        position: absolute
+        top: calc(50vh - 168px / 2)
+        left: calc(50vw - 344px / 2)
+        width: 344px
+        height: 168px
+        padding: 24px
+        border: 0
+        border-radius: 10px
 
-    .basket-container
-        display: flex
-        margin-right: 2%
+        .modal-header
+            display: flex
+            justify-content: space-between
+            font-weight: 500
 
-        .basket-counter
+        .modal-warn
+            margin-top: 16px
+            font-weight: 300
+
+
+        .modal-button
+            display: inline
             position: relative
-            width: 28px 
-            height: 28px
-            background-color: #FF5500
-            border-radius: 4px
-            margin-right: 4px
+            width: 51px 
+            height: 40px
+            border-radius: 8px
+            margin-top: 24px
             display: flex
             justify-content: center
             align-items: center
+            text-align: center
 
-            .backet-counter-text
-                text-align: center
-        .basket
-            display: inline
-            width: 32px
-            height: 32px
-            background-color: #33333300
-            background-image: url('../../resources/icons/basket.svg') 
-            background-repeat: no-repeat
-            border: 0
-            cursor: pointer
+        .yes-btn
+            float: left
+            margin-right: 8px
+            background-color: #FF5500
+            color: white
+            border: white 1px solid
 
-.main-section
-    width: 100%
-    height: calc(100vh - 80px)
-    position: relative
-    display: grid
-    grid-template-columns: 23% 73%
-    gap: 25px
-    margin-left: 2%
-    margin-right: 2%
+            &:hover
+                background-color: #E94E00
+
+        .no-btn
+            clear: right
+            background-color: white
+            color: #FF5500
+            border: #FF5500 1px solid
+
+            &:hover
+                border: #E94E00 1px solid
+
+    .total-block
+        position: absolute
+        display: flex
+        justify-content: space-between
+        align-items: center
+        width: calc(100% - 32px - 32px)
+        height: 68px
+        margin: 0 32px 0 32px
+        padding: 32px
+        bottom: calc(24px + 86px)
+        background-color: white
+        border-radius: 8px
+        box-shadow: -2px 1px 50px 9px rgba(0, 0, 0, 0.2)
+
+
+.empty-basket-warning
+    position: absolute
+    top: 200px
+    width: 100vw
+    color: #cdcdcd
+    font-size: 30px
+    text-align: center
+
+
+
+
+        

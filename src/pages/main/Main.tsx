@@ -1,14 +1,12 @@
 "use client";
 
 import Filters from "./Filters";
-import Movies, {movie} from "./Movies";
+import Movies from "./Movies";
 import Header from "./Header";
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+import React, { useState } from "react";
+import Footer from "./Footer";
 
 export default function Main() {
-    const router = useRouter();
-
     const [filterString, setFilterString] = useState("");
     const [genreFilter, setGenreFilter] = useState("Не выбран");
     const [cinemaFilter, setCinemaFilter] = useState("Не выбран");
@@ -35,6 +33,7 @@ export default function Main() {
 
                 />
             </section>
+            <Footer/>
         </>
     );
 }
