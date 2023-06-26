@@ -2,7 +2,7 @@
 import Header from "../Header";
 import { Movie, movie } from "../Movies";
 import React, { useEffect, useState, useContext, useRef } from "react";
-import { BasketContext } from "../../basketContext";
+import { BasketContext } from "../../_app";
 import Image from "next/image";
 import remove from "../../../../resources/icons/close.svg";
 import Footer from "../Footer";

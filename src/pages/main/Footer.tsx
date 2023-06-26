@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { useEffect, useState, useContext, useRef } from "react";
-import { BasketContext } from "../basketContext";
+import { useEffect, useState } from "react";
 
 export default function Footer() {          
     const [isVisible, setIsVisible] = useState(false);

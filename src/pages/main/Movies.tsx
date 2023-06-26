@@ -5,7 +5,7 @@ import btnMinus from "../../../resources/icons/btn-plus.svg";
 import remove from "../../../resources/icons/close.svg";
 import Image from "next/image";
 import React, { useState, useEffect, useContext } from "react";
-import { BasketContext } from "../basketContext";
+import { BasketContext } from "../_app";
 import Link from "next/link";
 
 interface movieProps {
@@ -38,10 +38,7 @@ export const Movie = ({
                 }
             });
             if (basketCopy.get(entry) == 0) {
-                console.log(basketCopy);
-                console.log(1);
                 basketCopy.delete(entry);
-                console.log(basketCopy);
             }
         } else {
             basketCopy.set(movieDetails, 1);

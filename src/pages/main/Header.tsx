@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useEffect, useState, useContext } from "react";
-import { BasketContext } from "../basketContext";
+import { BasketContext } from "../_app";
 
 export default function Header() {
     const [totalCounter, setTotalCounter] = useState(0);
